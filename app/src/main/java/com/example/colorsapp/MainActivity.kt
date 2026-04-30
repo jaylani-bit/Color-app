@@ -55,13 +55,12 @@ fun ColorsApp() {
         mutableStateOf(listOf(Color.Red, Color.Yellow, Color.Green, Color.Blue))
     }
 
+
     val originalColors = listOf(Color.Red, Color.Yellow, Color.Green, Color.Blue)
     var randomize by remember { mutableStateOf(false) }
     var running by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-    var activeBox by remember { mutableStateOf(-1) }
-    var hits by remember { mutableStateOf(0) }
-    var misses by remember { mutableStateOf(0) }
+
 
     Column(
         modifier = Modifier
@@ -70,85 +69,67 @@ fun ColorsApp() {
             .padding(10.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            "Whack-a-Color!",
+        Text("Colors!",
             fontSize = 28.sp,
-            color = Color.White
-        )
+            color = Color.White)
+
 
         Spacer(modifier = Modifier.height(20.dp))
-        Text(
-            "Hits: $hits Misses: $misses",
-            fontSize = 24.sp,
-            color = Color.White
-        )
+
 
         Row {
-            ColorBox(colors[0]) {
-                checkHit(0, activeBox, { hits++; activeBox = -1 }, { misses++ } )
-            }
+            ColorBox(colors[0])
             Spacer(modifier = Modifier.width(10.dp))
-            ColorBox(colors[1]) {
-                checkHit(1, activeBox,{ hits++; activeBox = -1 }, { misses++ } )
-            }
+            ColorBox(colors[1])
         }
+
 
         Spacer(modifier = Modifier.height(10.dp))
 
+
         Row {
-            ColorBox(colors[2]) {
-                checkHit(2, activeBox, { hits++; activeBox = -1 }, { misses++ } )
-            }
+            ColorBox(colors[2])
             Spacer(modifier = Modifier.width(10.dp))
-            ColorBox(colors[3]) {
-                checkHit(3, activeBox, { hits++; activeBox = -1 } ,{ misses++ } )
-            }
+            ColorBox(colors[3])
         }
+
 
         Spacer(modifier = Modifier.height(20.dp))
 
+
         Button(
-            modifier = Modifier.size(150.dp, 70.dp),
+            modifier =Modifier.size(150.dp,70.dp),
             onClick = {
                 running = !running
 
+
                 if (running) {
-                    hits = 0
-                    misses = 0
                     scope.launch {
                         val order = listOf(0, 1, 3, 2)
                         var step = 0
+
 
                         while (running) {
                             val newColors = originalColors.toMutableList()
                             val chosenIndex =
                                 if (randomize) Random.nextInt(0, 4)
                                 else order[step]
-                            activeBox = chosenIndex
                             newColors[chosenIndex] = Color.White
                             colors = newColors
 
-                            delay(700)
-                            if (activeBox == chosenIndex) {
-                                misses++
-                            }
-                            activeBox = -1
+
+                            delay(400)
                             colors = originalColors
-                            delay(300)
+                            delay(400)
                             step = (step + 1) % 4
                         }
                     }
-                } else {
-                    activeBox = -1
-                    colors = originalColors
                 }
             }
-        ) {
-            Text(
-                if (running) "Stop" else "Start",
-                fontSize = 22.sp
-            )
+        ){
+            Text(if (running) "Stop" else "Start")
         }
+
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             Checkbox(
@@ -156,35 +137,21 @@ fun ColorsApp() {
                 onCheckedChange = { randomize = it }
             )
             Text(
-                text = "Randomize?",
+                text="Randomize?",
                 color = Color.Magenta,
                 fontSize = 22.sp
             )
         }
     }
 }
-fun checkHit(
-    boxNumber: Int,
-    activeBox:Int,
-    onHit: () -> Unit,
-    onMiss:() -> Unit
-){
-    if (boxNumber == activeBox){
-        onHit()
-    } else {
-        onMiss()
-    }
-}
+
 
 @Composable
-fun ColorBox(color: Color, onClick: () -> Unit) {
+fun ColorBox(color: Color) {
     Box(
         modifier = Modifier
             .width(200.dp)
             .height(300.dp)
             .background(color)
-            .clickable{ onClick() }
     )
 }
-
-
